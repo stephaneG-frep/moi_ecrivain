@@ -56,6 +56,25 @@ class ProjectProvider extends ChangeNotifier {
     await _persist();
   }
 
+  Future<void> updateProject({
+    required WritingProject project,
+    required String title,
+    required String type,
+    required String genre,
+    required String summary,
+    required int wordGoal,
+    required String tone,
+  }) async {
+    project
+      ..title = title
+      ..type = type
+      ..genre = genre
+      ..summary = summary
+      ..wordGoal = wordGoal
+      ..tone = tone;
+    await touch(project);
+  }
+
   Future<void> touch(WritingProject project) async {
     project.updatedAt = DateTime.now();
     await _persist();
@@ -84,8 +103,50 @@ class ProjectProvider extends ChangeNotifier {
   }
 
   Future<void> saveChapter(WritingProject project, Chapter chapter, String content) async {
+    final delta = _countWords(content) - chapter.wordCount;
     chapter.content = content;
     chapter.updatedAt = DateTime.now();
+    if (delta > 0) {
+      final key = _dateKey(DateTime.now());
+      project.dailyWordCounts[key] = (project.dailyWordCounts[key] ?? 0) + delta;
+    }
+    await touch(project);
+  }
+
+  Future<void> updateOutline({
+    required WritingProject project,
+    required String beginning,
+    required String trigger,
+    required String conflicts,
+    required String climax,
+    required String ending,
+  }) async {
+    project
+      ..outlineBeginning = beginning
+      ..outlineTrigger = trigger
+      ..outlineConflicts = conflicts
+      ..outlineClimax = climax
+      ..outlineEnding = ending;
+    await touch(project);
+  }
+
+  Future<void> updateDailyGoal(WritingProject project, int dailyWordGoal) async {
+    project.dailyWordGoal = dailyWordGoal;
+    await touch(project);
+  }
+
+  Future<void> updateAiSettings({
+    required WritingProject project,
+    required String provider,
+    required String apiKey,
+    required String model,
+    required String ollamaUrl,
+  }) async {
+    project
+      ..aiProvider = provider
+      ..aiApiKey = apiKey
+      ..aiModel = model
+      ..ollamaUrl = ollamaUrl;
     await touch(project);
   }
 
@@ -130,4 +191,9 @@ class ProjectProvider extends ChangeNotifier {
     await _storageService.saveProjects(_projects);
     notifyListeners();
   }
+
+  int _countWords(String text) => text.trim().isEmpty ? 0 : text.trim().split(RegExp(r'\s+')).length;
+
+  String _dateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }
