@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/project_provider.dart';
 import '../services/correction_service.dart';
+import '../services/writing_assistant_service.dart';
 
 class AiSettingsScreen extends StatefulWidget {
   const AiSettingsScreen({super.key, required this.projectId});
@@ -71,7 +72,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           const SizedBox(height: 12),
           TextField(
             controller: _ollamaUrl,
-            decoration: const InputDecoration(labelText: 'URL Ollama local'),
+            decoration: const InputDecoration(
+              labelText: 'URL Ollama local',
+              helperText: 'Sur un vrai telephone, utilise l IP du PC, pas localhost.',
+            ),
           ),
           const SizedBox(height: 18),
           Card(
@@ -99,6 +103,35 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             },
             icon: const Icon(Icons.save_outlined),
             label: const Text('Enregistrer'),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () async {
+              await context.read<ProjectProvider>().updateAiSettings(
+                    project: project,
+                    provider: _provider,
+                    apiKey: _apiKey.text,
+                    model: _model.text,
+                    ollamaUrl: _ollamaUrl.text,
+                  );
+              final result = await WritingAssistantService().generateIdeas(
+                'Donne une idee courte pour tester la connexion.',
+                project: project,
+              );
+              if (!context.mounted) return;
+              showDialog<void>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Test connexion'),
+                  content: SingleChildScrollView(child: SelectableText(result)),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer')),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(Icons.network_check),
+            label: const Text('Tester la connexion'),
           ),
         ],
       ),

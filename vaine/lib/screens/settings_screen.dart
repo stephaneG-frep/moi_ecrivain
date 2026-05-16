@@ -20,7 +20,7 @@ class SettingsScreen extends StatelessWidget {
                 leading: const Icon(Icons.extension_outlined),
                 title: Text(provider.name),
                 subtitle: Text(provider.description),
-                trailing: const Chip(label: Text('pret')),
+                trailing: const Chip(label: Text('branche')),
               ),
             ),
           const SizedBox(height: 22),

@@ -112,6 +112,7 @@ class _EditorScreenState extends State<EditorScreen> {
                         flex: 2,
                         child: AssistantPanel(
                           selectedText: _selectedText,
+                          project: project,
                           onResult: (value) => _showSnack('Suggestion prete'),
                         ),
                       ),
@@ -123,6 +124,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     const SizedBox(height: 14),
                     AssistantPanel(
                       selectedText: _selectedText,
+                      project: project,
                       onResult: (value) => _showSnack('Suggestion prete'),
                     ),
                   ],

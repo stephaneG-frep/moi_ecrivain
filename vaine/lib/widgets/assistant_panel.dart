@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../models/writing_project.dart';
 import '../services/writing_assistant_service.dart';
 
 class AssistantPanel extends StatefulWidget {
   const AssistantPanel({
     super.key,
     required this.selectedText,
+    required this.project,
     required this.onResult,
   });
 
   final String selectedText;
+  final WritingProject project;
   final ValueChanged<String> onResult;
 
   @override
@@ -41,8 +44,8 @@ class _AssistantPanelState extends State<AssistantPanel> {
         ? 'Contexte general du chapitre'
         : widget.selectedText.trim();
     final result = action == 'Corriger l orthographe'
-        ? await _service.correctSpelling(text)
-        : await _service.transform(action, text);
+        ? await _service.correctSpelling(text, project: widget.project)
+        : await _service.transform(action, text, project: widget.project);
     setState(() {
       _lastResult = result;
       _isLoading = false;
